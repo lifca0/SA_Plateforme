@@ -8,6 +8,8 @@ function App() {
   const [error, setError] = useState(null);
   const [newItemName, setNewItemName] = useState('');
   const [selectedFormat, setSelectedFormat] = useState('Détection automatique');
+  const [file, setFile] = useState(null);
+  const [fileName, setFileName] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -27,16 +29,49 @@ function App() {
 
   const handleProcess = async (e) => {
     e.preventDefault();
-    if (!newItemName) return alert("Veuillez entrer un nom de salon");
-    
+    if (!newItemName) return alert("Veuillez entrer un nom de salon.");
+    if (!file) return alert("Veuillez sélectionner un fichier.");
+  
     try {
       await createData({ name: newItemName, description: `Format: ${selectedFormat}` });
       setNewItemName('');
-      alert('Traitement lancé avec succès');
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("http://localhost:5000/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur API");
+      }
+
+      const blob = await response.blob();
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "crm_ready.xlsx";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(url);
+      
       fetchData();
+      alert("Traitement terminé !");
     } catch (err) {
-      alert('Erreur lors du traitement');
-    }
+      alert("Erreur lors du traitement");
+  }
+};
+
+  // Lifca
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    setFileName(selectedFile ? selectedFile.name : "");
   };
 
   if (loading) return <div className="loading-screen">Chargement de la plateforme...</div>;
@@ -92,9 +127,16 @@ function App() {
 
             <div className="input-group">
               <label>Fichier CSV</label>
+                <input
+                  type="file"
+                  id="fileInput"
+                  accept=".xlsx,.xls"
+                  style={{ display: "none" }}
+                  onChange={handleFileChange}
+                />
               <div className="file-input-custom">
-                <button type="button" className="browse-btn">Parcourir...</button>
-                <span className="file-name">Aucun fichier sélectionné.</span>
+                <button type="button" className="browse-btn" onClick={() => document.getElementById('fileInput').click()}>Parcourir...</button>
+                <span className="file-name">{fileName || "Aucun fichier sélectionné."}</span>
               </div>
             </div>
 
