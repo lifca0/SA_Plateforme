@@ -9,7 +9,25 @@ const api = axios.create({
   },
 });
 
-export const healthCheck = () => api.get('/health');
+// Intercepteur pour ajouter le token à chaque requête
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Auth
+export const login = (email, password) => api.post('/login', { email, password });
+export const getMe = () => api.get('/me');
+
+// Data
 export const getData = () => api.get('/data');
 export const getItem = (id) => api.get(`/data/${id}`);
 export const createData = (data) => api.post('/data', data);

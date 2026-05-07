@@ -1,8 +1,9 @@
 # Backend
-backend/venv/
+venv/
 backend/__pycache__/
 backend/*.pyc
 backend/.env
+backend/*.log
 backend/data.json
 
 # Frontend
@@ -17,3 +18,5 @@ frontend/.env
 # OS
 .DS_Store
 Thumbs.db
+
+Pandas/export*
