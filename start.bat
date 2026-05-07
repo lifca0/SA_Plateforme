@@ -2,7 +2,7 @@
 echo Demarrage de SA Plateforme avec FastAPI + React...
 
 :: Démarrer le backend FastAPI
-start cmd /k "cd backend && venv\Scripts\python.exe run.py"
+start cmd /k "python backend/seed_db.py && python backend/run.py"
 
 :: Attendre 3 secondes
 timeout /t 3
